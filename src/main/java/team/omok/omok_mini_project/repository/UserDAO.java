@@ -10,7 +10,7 @@ import java.sql.ResultSet;
 public class UserDAO {
     public UserVO findById(String id) {
 
-        String sql = "SELECT id, password, nickname FROM users WHERE id = ?";
+        String sql = "SELECT id, password, nickname FROM users WHERE id=?";
 
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -23,6 +23,8 @@ public class UserDAO {
                 vo.setId(rs.getString("id"));
                 vo.setPassword(rs.getString("password"));
                 vo.setNickname(rs.getString("nickname"));
+
+                System.out.println("[INFO]login-" + vo);
                 return vo;
             }
 

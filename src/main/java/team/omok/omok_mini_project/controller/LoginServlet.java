@@ -28,7 +28,7 @@ public class LoginServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         System.out.println("[INFO]login-doPost");
-
+        request.setCharacterEncoding("utf-8");
         String id = request.getParameter("id");
         String pw = request.getParameter("pw");
         response.setContentType("text/html");
@@ -42,6 +42,8 @@ public class LoginServlet extends HttpServlet {
             response.sendRedirect("/omok/lobby/");
 
         } catch (IllegalArgumentException e) {
+
+            System.out.println("[INFO]login-fail");
             request.setAttribute("error", e.getMessage());
             request.getRequestDispatcher("/WEB-INF/views/login.jsp")
                     .forward(request, response);

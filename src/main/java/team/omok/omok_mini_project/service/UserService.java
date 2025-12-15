@@ -8,6 +8,7 @@ public class UserService {
 
     public UserVO login(String id, String password) {
 
+        System.out.println(id + ": " + password);
         if (id == null || password == null) {
             throw new IllegalArgumentException("입력값이 없습니다.");
         }
