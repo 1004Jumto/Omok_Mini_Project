@@ -34,9 +34,7 @@ public class GameWebSocket {
 //        roomManager.registerSession(roomId, session);
 
         room.addSession(session);
-        if (room.isReady()) {
-            room.startCountdown();
-        }
+        roomManager.tryStartGame(roomId);
 
         session.getBasicRemote().sendText("CONNECTED");
     }
