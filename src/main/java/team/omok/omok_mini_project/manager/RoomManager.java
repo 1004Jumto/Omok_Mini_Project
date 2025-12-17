@@ -10,12 +10,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 서버 전체에 존재하는 모든 room을 관리하며, 싱글톤으로 구현된다.
+ * RoomManager는 Room 상태를 알지 못하며,
+ * 오직 조회/생성/삭제만 수행한다.
  *
  * @function RoomManager.getInstance()
- * @function public Room getRoom(String roomId)
+ * @function public Room getRoomById(String roomId)
  * @function public List<Room> getWaitingRooms()
  * @function public Room createRoom(String userId)
  * @function public boolean removeRoom(int roomId)
+ * @see Room
  */
 public class RoomManager {
     private static final RoomManager instance = new RoomManager();          // 싱글톤 인스턴스
@@ -45,7 +48,7 @@ public class RoomManager {
         return rooms.remove(roomId) != null;
     }
 
-    public Room getRoom(String roomId) {
+    public Room getRoomById(String roomId) {
         return rooms.get(roomId);
     }
 
@@ -53,22 +56,10 @@ public class RoomManager {
         return rooms.values().stream().toList();
     }
 
-    /**
-     *
-     * @return List<Room>
-     */
     public List<Room> getWaitingRooms() {
         return rooms.values().stream()
                 .filter(room -> !room.isFull())
                 .toList();
-    }
-
-    public void tryStartGame(String roomId) {
-        Room room = rooms.get(roomId);
-        if (room == null) {
-            throw new IllegalArgumentException("방이 존재하지 않습니다");
-        }
-        room.tryStartGame();
     }
 
 }

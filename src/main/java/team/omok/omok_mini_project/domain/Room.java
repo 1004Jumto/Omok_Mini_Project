@@ -12,13 +12,18 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 하나의 게임 방에 대해 모든 상태 저장
+ * 하나의 게임 방에 대해 모든 상태 저장 + 유일하게 상태 변경 할 수 있는 객체
  *
  * 방 ID
  * 참가자 목록
  * 관전자 목록
  * WebSocket 세션들
  * 현재 게임(Game) 참조
+ *
+ * (참고) 스레드 세이프해야하는 부분
+ * * 게임 시작 조건 판단
+ * * 플레이어 추가
+ * * 게임 상태 변경
  * @see RoomManager
  */
 @Data
@@ -27,12 +32,11 @@ public class Room {
 
     private final String roomId;
     private final String ownerId;
-    private final List<String> players = new ArrayList<>(MAX_PLAYER);        // 플레이어
-    private final Set<Session> sessions = ConcurrentHashMap.newKeySet();        // 플레이어 세션
+    private final List<String> players = new ArrayList<>(MAX_PLAYER);           // 플레이어
+    private final Set<Session> playerSessions = ConcurrentHashMap.newKeySet();        // 플레이어 세션
     private final Set<Session> spectators = ConcurrentHashMap.newKeySet();      // 관전자 세션
-    private Game game;                          // 게임
-    private RoomStatus status;                  // 방 상태: WAITING, COUNTDOWN, PLAYING, END
-    private boolean gameStarted = false;
+    private Game game;                              // 게임
+    private RoomStatus status = RoomStatus.WAIT;    // 방 상태: WAITING, READY, COUNTDOWN, PLAYING, END
 
 
     public Room(String roomId, String ownerId) {
@@ -41,13 +45,18 @@ public class Room {
         this.players.add(ownerId);              // 방장은 자동 입장
     }
 
-    public void addSession(Session session) {
+    public synchronized void addSession(String userId, Session session) {
         System.out.println("[INFO]Room-addSession: " + session);
-        sessions.add(session);
+        if(players.contains(userId)){
+            playerSessions.add(session);
+        }else{
+            spectators.add(session);
+        }
+        updateRoomStatus();
     }
 
-    public void removeSession(Session session) {
-        sessions.remove(session);
+    public synchronized void removeSession(Session session) {
+        playerSessions.remove(session);
     }
 
     public synchronized void tryAddPlayer(String userId) {
@@ -57,19 +66,15 @@ public class Room {
         players.add(userId);
     }
 
-    public void tryStartGame() {
-        if (gameStarted) return;
-        if (!isReady()) return;
-
+    public synchronized void tryStartGame() {
+        if(status != RoomStatus.READY) {
+            return;
+        }
         startCountdown();
     }
 
-    public boolean isFull() {
-        return players.size() >= MAX_PLAYER;
-    }
-
     public void broadcast(String message) {
-        for (Session s : sessions) {
+        for (Session s : playerSessions) {
             try {
                 System.out.println("[INFO]Room-broadcast: "+ message);
                 s.getBasicRemote().sendText(message);
@@ -79,13 +84,22 @@ public class Room {
         }
     }
 
-    public boolean isReady() {
-        return players.size() == MAX_PLAYER && sessions.size() == MAX_PLAYER;
+    public synchronized boolean isFull() {
+        return players.size() >= MAX_PLAYER;
     }
 
-    public synchronized void startCountdown() {
-        if (gameStarted) return;
-        gameStarted = true;
+    private boolean isReady() {
+        return players.size() == MAX_PLAYER && playerSessions.size() == MAX_PLAYER;
+    }
+
+    private void updateRoomStatus(){
+        if(isReady() && status == RoomStatus.WAIT){
+            status = RoomStatus.READY;
+        }
+    }
+
+    private void startCountdown() {
+        status = RoomStatus.COUNTDOWN;
         System.out.println("[INFO]Room-startCountdown");
 
         new Thread(() -> {
@@ -94,12 +108,20 @@ public class Room {
                     broadcast("{\"type\":\"COUNTDOWN\",\"sec\":" + i + "}");
                     Thread.sleep(1000);
                 }
-                broadcast("{\"type\":\"GAME_START\"}");
+
+                // 게임 시작
+                startGame();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }).start();
     }
 
-
+    private void startGame(){
+        broadcast("{\"type\":\"GAME_START\"}");
+        this.game = new Game(); // 게임은 추후 추가
+        status = RoomStatus.PLAYING;
+    }
 }
+
+
