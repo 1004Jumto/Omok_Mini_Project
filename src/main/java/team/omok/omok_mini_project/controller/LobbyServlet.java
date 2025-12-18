@@ -46,7 +46,6 @@ public class LobbyServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-
         String path = request.getPathInfo(); // /create
         UserVO user = (UserVO) request.getSession().getAttribute("loginUser");
 

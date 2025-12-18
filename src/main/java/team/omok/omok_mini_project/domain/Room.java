@@ -36,14 +36,47 @@ public class Room {
     private final Set<Session> playerSessions = ConcurrentHashMap.newKeySet();        // 플레이어 세션
     private final Set<Session> spectators = ConcurrentHashMap.newKeySet();      // 관전자 세션
     private Game game;                              // 게임
-    private RoomStatus status = RoomStatus.WAIT;    // 방 상태: WAITING, READY, COUNTDOWN, PLAYING, END
-
+    private RoomStatus status;                      // 방 상태: WAITING, READY, COUNTDOWN, PLAYING, END
 
     public Room(String roomId, String ownerId) {
         this.roomId = roomId;
         this.ownerId = ownerId;
         this.players.add(ownerId);              // 방장은 자동 입장
+        status = RoomStatus.WAIT;
     }
+
+    ////////////// 상태 관리 ///////////////
+    private synchronized void updateStatus(RoomStatus nextStatus){
+        if(this.status == nextStatus) return;
+        this.status = nextStatus;
+
+        switch (nextStatus){
+            case WAIT:
+                broadcast("{\"type\":\"ROOM_WAIT\",\"reason\":\"PLAYER_LEFT\"}");
+
+                break;
+            case READY:
+
+                break;
+            case COUNTDOWN:
+                startCountdown();
+
+                break;
+            case PLAYING:
+
+                break;
+            case END:
+
+                break;
+
+            default:
+                break;
+        }
+    }
+
+
+
+    ////////////// 세션 관리 ///////////////
 
     public synchronized void addSession(String userId, Session session) {
         System.out.println("[INFO]Room-addSession: " + session);
@@ -52,11 +85,26 @@ public class Room {
         }else{
             spectators.add(session);
         }
-        updateRoomStatus();
+
+        if(isReady() && status == RoomStatus.WAIT){
+            updateStatus(RoomStatus.READY);
+        }
     }
 
-    public synchronized void removeSession(Session session) {
+    public synchronized void removeSession(String userId, Session session) {
+        players.remove(userId);
         playerSessions.remove(session);
+        spectators.remove(session);
+
+        // 게임 도중 방 나간 경우
+        if(!isReady() && status == RoomStatus.PLAYING){
+            updateStatus(RoomStatus.END);
+        }
+
+        // 게임 시작 전에 방 나간 경우
+        if(!isReady() && (status == RoomStatus.READY || status == RoomStatus.COUNTDOWN)){
+            updateStatus(RoomStatus.WAIT);
+        }
     }
 
     public synchronized void tryAddPlayer(String userId) {
@@ -66,11 +114,60 @@ public class Room {
         players.add(userId);
     }
 
+    ////////////// 게임 흐름 제어 ///////////////
+
     public synchronized void tryStartGame() {
         if(status != RoomStatus.READY) {
             return;
         }
-        startCountdown();
+        updateStatus(RoomStatus.COUNTDOWN);
+    }
+
+    private void startCountdown() {
+        System.out.println("[INFO]Room-startCountdown");
+
+        new Thread(() -> {
+            try {
+                for (int i = 5; i >= 1; i--) {
+
+                    if(status != RoomStatus.COUNTDOWN){
+                        return;
+                    }
+                    broadcast("{\"type\":\"COUNTDOWN\",\"sec\":" + i + "}");
+                    Thread.sleep(1000);
+                }
+
+                // 게임 시작
+                if(isReady()){
+                    startGame();
+                }
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    private synchronized void startGame(){
+        if(status != RoomStatus.COUNTDOWN) return;
+        if(!isReady()) return;
+
+        broadcast("{\"type\":\"GAME_START\"}");
+
+        this.game = new Game(); // 게임은 추후 추가
+        updateStatus(RoomStatus.PLAYING);
+    }
+
+
+    ////////////// 유틸 ///////////////
+
+    public synchronized boolean isFull() {
+        return players.size() >= MAX_PLAYER;
+    }
+
+    // 게임 시작 가능 조건
+    private boolean isReady() {
+        return players.size() == MAX_PLAYER && playerSessions.size() == MAX_PLAYER;
     }
 
     public void broadcast(String message) {
@@ -84,44 +181,8 @@ public class Room {
         }
     }
 
-    public synchronized boolean isFull() {
-        return players.size() >= MAX_PLAYER;
-    }
 
-    private boolean isReady() {
-        return players.size() == MAX_PLAYER && playerSessions.size() == MAX_PLAYER;
-    }
 
-    private void updateRoomStatus(){
-        if(isReady() && status == RoomStatus.WAIT){
-            status = RoomStatus.READY;
-        }
-    }
-
-    private void startCountdown() {
-        status = RoomStatus.COUNTDOWN;
-        System.out.println("[INFO]Room-startCountdown");
-
-        new Thread(() -> {
-            try {
-                for (int i = 5; i >= 1; i--) {
-                    broadcast("{\"type\":\"COUNTDOWN\",\"sec\":" + i + "}");
-                    Thread.sleep(1000);
-                }
-
-                // 게임 시작
-                startGame();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }).start();
-    }
-
-    private void startGame(){
-        broadcast("{\"type\":\"GAME_START\"}");
-        this.game = new Game(); // 게임은 추후 추가
-        status = RoomStatus.PLAYING;
-    }
 }
 
 

@@ -32,7 +32,7 @@ public class RoomManager {
         String roomId = UUID.randomUUID().toString();
         Room room = new Room(roomId, userId);
         rooms.put(roomId, room);
-
+        System.out.println("[INFO]RoomManager - createRoom:" + roomId);
         return room;
     }
 
@@ -41,6 +41,7 @@ public class RoomManager {
         if (room == null) {
             throw new IllegalArgumentException("방이 존재하지 않습니다");
         }
+        System.out.println("[INFO]RoomManager - enterRoom:" + roomId);
         room.tryAddPlayer(user.getId());
     }
 

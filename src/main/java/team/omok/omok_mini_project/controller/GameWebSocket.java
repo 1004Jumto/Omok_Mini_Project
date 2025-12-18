@@ -36,9 +36,13 @@ public class GameWebSocket {
                 throw new RuntimeException(e);
             }
         }
-        String user_id = (String) session.getUserProperties().get("user_id");
-        Objects.requireNonNull(room).addSession(user_id, session);
-        room.tryStartGame();
+        String userId = (String) session.getUserProperties().get("user_id");
+        if(room != null){
+            room.addSession(userId, session);
+            System.out.println("[INFO]방 상태: " + room.getStatus());
+            room.tryStartGame();
+        }
+//        Objects.requireNonNull(room).addSession(userId, session);
 
         session.getBasicRemote().sendText("CONNECTED");
     }
@@ -57,8 +61,11 @@ public class GameWebSocket {
     public void onClose(Session session) {
         System.out.println("[WS CLOSE] sessionId=" + session.getId());
         Room room = roomManager.getRoomById(roomId);
+        String userId = (String) session.getUserProperties().get("user_id");
+
         if (room != null) {
-            room.removeSession(session);
+            room.removeSession(userId, session);
+//            roomManager.removeRoom(roomId);
         }
         System.out.println("[WS] 연결 종료");
     }

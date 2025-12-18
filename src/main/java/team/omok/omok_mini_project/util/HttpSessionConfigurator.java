@@ -1,5 +1,7 @@
 package team.omok.omok_mini_project.util;
 
+import team.omok.omok_mini_project.domain.UserVO;
+
 import javax.servlet.http.HttpSession;
 import javax.websocket.HandshakeResponse;
 import javax.websocket.server.HandshakeRequest;
@@ -15,10 +17,10 @@ public class HttpSessionConfigurator extends ServerEndpointConfig.Configurator{
                 (HttpSession) request.getHttpSession();
 
         if (httpSession != null) {
-            String user_id =
-                    (String) httpSession.getAttribute("user_id");
+            UserVO vo = (UserVO) httpSession.getAttribute("loginUser");
+            String userId = vo.getId();
 
-            config.getUserProperties().put("user_id", user_id);
+            config.getUserProperties().put("user_id", userId);
         }
     }
 }

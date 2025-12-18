@@ -36,6 +36,10 @@
       case "GAME_START":
         startGameUI();
         break;
+      case "ROOM_WAIT":
+        status.innerText = "상대방을 기다리는 중...";
+        countdown.innerText = "";
+        break;
       case "MOVE":
         drawStone(data.x, data.y, data.color);
 
