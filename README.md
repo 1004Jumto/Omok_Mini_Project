@@ -139,3 +139,7 @@
 
  
 
+# 추가 문서
+
+- [프로젝트 전체 문서화](docs/project-documentation.md)
+- [이력서용 역할 및 기술 문서](docs/resume-role-documentation.md)
