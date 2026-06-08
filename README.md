@@ -1,12 +1,12 @@
-<img width="800" height="600" alt="image" src="https://github.com/user-attachments/assets/1ff9f05e-84c7-4faa-870c-eb680e5b13f0" />
+<img width="900" height="700" alt="image" src="https://github.com/user-attachments/assets/1ff9f05e-84c7-4faa-870c-eb680e5b13f0" />
 
 
-# 프로젝트 개요
+# 1. 프로젝트 개요
 
 * JAVA 기반 웹 소켓을 사용하여 오목 게임을 구현하는 미니 프로젝트
  
 
-## 개발환경
+## 1.1 개발환경
 
 * IDE: intellij, eclipse
 * 서버: tomcat9 + JDK17
@@ -14,12 +14,13 @@
 * 기술 스택: JAVA, JSP, Servlet, CSS, JS
 
 
-## 웹 소켓 스터디
+## 1.2 추가 문서
 
-* [웹 소켓 위키](https://github.com/ShinHanSWT1/Omok_Mini_Project.wiki.git)
+- [프로젝트 전체 문서화](docs/project-documentation.md)
+- [이력서용 역할 및 기술 문서](docs/resume-role-documentation.md)
 
 
-## 구조
+## 1.3 구조
 
 * MVC 모델
 
@@ -28,7 +29,7 @@
 |<img width="500" height="400" alt="image" src="https://github.com/user-attachments/assets/29a35e46-6df8-4c81-9824-c3b0de10b382" />|<img width="500" height="400" alt="image" src="https://github.com/user-attachments/assets/4c7efd47-b193-4a55-869f-013fb11b98fb" />|
 
 
-### 패키지 구조
+### 1.3.1 패키지 구조
 
 ```java
  src/
@@ -89,7 +90,7 @@
 ```
 
 
-## 코드 플로우
+## 1.4 코드 플로우
 
 * [웹 소켓을 이용한 오목_흐름도.drawio](https://drive.google.com/file/d/1A-UerBnSQWB8CKETi9cZNwWrvPYuyRjW/view)
 
@@ -99,11 +100,23 @@
 |게임|<img width="6200" height="4448" alt="image" src="https://github.com/user-attachments/assets/dbdd5021-db4a-41f8-aaed-63349612a200" />|
 
 
- 
 
+# 2. 화면
 
+* 로그인/회원가입
+<img width="1014" height="814" alt="스크린샷 2026-06-08 184928" src="https://github.com/user-attachments/assets/e6697f85-5ef3-489a-b585-c3de7abe5f30" /> 
 
-# 팀원
+* 게임 대기 - 로비
+<img width="2560" height="1440" alt="스크린샷(2)" src="https://github.com/user-attachments/assets/888ae3df-491f-4169-9cb6-03bb0ccf373e" />
+
+* 게임 시작
+<img width="2560" height="1440" alt="스크린샷(3)" src="https://github.com/user-attachments/assets/87cfe68d-a07e-4776-829e-40a09f843b5b" />
+<img width="2560" height="1440" alt="스크린샷(4)" src="https://github.com/user-attachments/assets/8c9674c8-2112-424d-ad8e-c8daf479555b" />
+<img width="2560" height="1440" alt="스크린샷(5)" src="https://github.com/user-attachments/assets/bdbc2bf9-e2a5-4778-ace4-b46b39cd29a5" />
+<img width="2560" height="1440" alt="스크린샷(7)" src="https://github.com/user-attachments/assets/07e25fdc-d628-4f9f-ae90-0798baaf5f95" />
+<img width="2560" height="1440" alt="스크린샷(8)" src="https://github.com/user-attachments/assets/38095d7e-a386-4311-a1ec-2c3ba9cc898a" />
+
+# 3. 팀원
 
 <table>
   <tr>
@@ -141,8 +154,3 @@
 </table>  
 
  
-
-# 추가 문서
-
-- [프로젝트 전체 문서화](docs/project-documentation.md)
-- [이력서용 역할 및 기술 문서](docs/resume-role-documentation.md)
