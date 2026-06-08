@@ -1,3 +1,6 @@
+<img width="800" height="600" alt="image" src="https://github.com/user-attachments/assets/1ff9f05e-84c7-4faa-870c-eb680e5b13f0" />
+
+
 # 프로젝트 개요
 
 * JAVA 기반 웹 소켓을 사용하여 오목 게임을 구현하는 미니 프로젝트
